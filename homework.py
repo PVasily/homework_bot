@@ -22,8 +22,7 @@ def get_logger():
     """Конфигурация логгера."""
     logging.basicConfig(
         level=logging.DEBUG,
-        filename='main.log',
-        filemode='w',
+        stream=sys.stdout,
         format='%(asctime)s, %(levelname)s, %(message)s, %(name)s')
 
     handler = RotatingFileHandler(
@@ -116,7 +115,7 @@ def main():
     LAST_ERROR = None
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
-    send_message('Бот активирован.')
+    send_message(bot, 'Бот активирован.')
     while True:
         try:
             check = check_tokens()
