@@ -22,15 +22,3 @@ class UnreachableTelegram(Exception):
     def __str__(self):
         """Формируем сообщение об ошибке."""
         return f'{self.message}'
-
-
-class UnknownStatus(Exception):
-    """Неизвестный статус."""
-
-    def __init__(self, message):
-        """Создаем поле message."""
-        self.message = message
-
-    def __str__(self):
-        """Формируем сообщение об ошибке."""
-        return f'{self.message}'

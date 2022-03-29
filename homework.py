@@ -15,32 +15,10 @@ from constants import (
     RETRY_TIME,
     HEADERS,
     HOMEWORK_STATUSES)
-from exceptions import EmptyResponse, UnreachableTelegram, UnknownStatus
+from exceptions import EmptyResponse, UnreachableTelegram
 
 
-def get_logger():
-    """Конфигурация логгера."""
-    logging.basicConfig(
-        level=logging.DEBUG,
-        stream=sys.stdout,
-        format='%(asctime)s, %(levelname)s, %(message)s, %(name)s')
-
-    handler = RotatingFileHandler(
-        'my_logger.log',
-        maxBytes=50000000,
-        encoding='UTF-8',
-        backupCount=5)
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(handler)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    handler.setFormatter(formatter)
-    return logger
-
-
-logger = get_logger()
+logger = logging
 
 
 def send_message(bot, message):
@@ -86,7 +64,7 @@ def check_response(response):
     elif 'homeworks' not in response or 'current_date' not in response:
         logger.error('Отсутствуют ключи "homeworks" или "current_date')
         raise EmptyResponse(response)
-    elif type(response['homeworks']) is not list:
+    elif not isinstance(response.get('homeworks'), list):
         logger.error('"homeworks" не список')
         raise TypeError('"homeworks" не список')
     return response['homeworks']
@@ -94,19 +72,21 @@ def check_response(response):
 
 def parse_status(homework):
     """На основе данных формируем вердикт о статусе работы."""
-    homework_name = homework['homework_name']
-    homework_status = homework['status']
-    if HOMEWORK_STATUSES[homework_status] is not None:
-        verdict = HOMEWORK_STATUSES[homework_status]
+    homework_name = homework.get('homework_name')
+    homework_status = homework.get('status')
+    if HOMEWORK_STATUSES.get(homework_status) is not None:
+        verdict = HOMEWORK_STATUSES.get(homework_status)
         return f'Изменился статус проверки работы "{homework_name}". {verdict}'
-    raise UnknownStatus('Неизвестный статус')
+    raise KeyError('Неизвестный статус')
 
 
 def check_tokens():
     """Проверяем наличие всех токенов."""
-    if all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]):
-        return True
-    return False
+    return all([
+        PRACTICUM_TOKEN,
+        TELEGRAM_TOKEN,
+        TELEGRAM_CHAT_ID
+    ])
 
 
 def main():
@@ -116,6 +96,7 @@ def main():
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
     send_message(bot, 'Бот активирован.')
+    print('Activation')
     while True:
         try:
             check = check_tokens()
@@ -148,4 +129,21 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.DEBUG,
+        stream=sys.stdout,
+        format='%(asctime)s, %(levelname)s, %(message)s, %(name)s')
+
+    handler = RotatingFileHandler(
+        'my_logger.log',
+        maxBytes=50000000,
+        encoding='UTF-8',
+        backupCount=5)
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(handler)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    handler.setFormatter(formatter)
     main()
