@@ -1,9 +1,9 @@
 import os
 
-if not os.environ.get("PRODUCTION"):
-    from dotenv import load_dotenv
+# if not os.environ.get("PRODUCTION"):
+#     from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
