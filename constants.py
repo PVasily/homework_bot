@@ -1,6 +1,7 @@
 import os
 
-from dotenv import load_dotenv
+if not os.environ.get("PRODUCTION"):
+    from dotenv import load_dotenv
 
 load_dotenv()
 
